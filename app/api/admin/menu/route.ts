@@ -1,0 +1,7 @@
+
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '../../../../lib/supabase/server';
+import seed from '../../../../data/menu.json';
+async function authorized(req:Request){const token=req.headers.get('authorization')?.replace(/^Bearer\s+/i,'');if(!token)return false;const sb=supabaseAdmin();const {data,error}=await sb.auth.getUser(token);return !error&&!!data.user;}
+export async function GET(req:Request){if(!await authorized(req))return NextResponse.json({error:'Unauthorized'},{status:401});const sb=supabaseAdmin();const {data,error}=await sb.from('menu_items').select('*').order('category').order('name');if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({items:data?.length?data:seed});}
+export async function PUT(req:Request){if(!await authorized(req))return NextResponse.json({error:'Unauthorized'},{status:401});const b=await req.json();if(!b.id||!b.name||!b.category||!Number.isFinite(Number(b.price))||Number(b.price)<0)return NextResponse.json({error:'Invalid menu item.'},{status:400});const sb=supabaseAdmin();const {data,error}=await sb.from('menu_items').upsert({id:b.id.startsWith('seed-')?undefined:b.id,name:String(b.name).slice(0,120),category:String(b.category).slice(0,80),price:Number(b.price),is_available:b.available!==false}).select().single();if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({item:data});}

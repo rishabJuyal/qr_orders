@@ -1,0 +1,7 @@
+
+import { NextResponse } from 'next/server';
+import { supabaseAdmin } from '../../../../lib/supabase/server';
+import QRCode from 'qrcode';
+async function authorized(req:Request){const token=req.headers.get('authorization')?.replace(/^Bearer\s+/i,'');if(!token)return false;const sb=supabaseAdmin();const {data,error}=await sb.auth.getUser(token);return !error&&!!data.user;}
+export async function GET(req:Request){if(!await authorized(req))return NextResponse.json({error:'Unauthorized'},{status:401});const sb=supabaseAdmin();const {data,error}=await sb.from('restaurant_tables').select('*').order('table_code');if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({tables:data});}
+export async function POST(req:Request){if(!await authorized(req))return NextResponse.json({error:'Unauthorized'},{status:401});const {table_code}=await req.json();const code=String(table_code||'').trim();if(!/^[A-Za-z0-9-]{1,20}$/.test(code))return NextResponse.json({error:'Use a simple table code, e.g. table-01.'},{status:400});const sb=supabaseAdmin();const {data,error}=await sb.from('restaurant_tables').upsert({table_code:code,is_active:true},{onConflict:'table_code'}).select().single();if(error)return NextResponse.json({error:error.message},{status:500});const origin=new URL(req.url).origin;const publicBase=process.env.NEXT_PUBLIC_SITE_URL||origin;const url=publicBase+'/menu/'+encodeURIComponent(code);const qr=await QRCode.toDataURL(url,{width:320,margin:2});return NextResponse.json({table:data,url,qr});}
