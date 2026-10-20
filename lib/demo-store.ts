@@ -48,12 +48,16 @@ export function ensureDemoOrders(): DemoOrder[] {
   return merged;
 }
 
-/** Wipes the demo data and re-seeds it from scratch. */
+/** Wipes the sample data and re-seeds it from scratch, keeping guest-placed orders. */
 export function resetDemoOrders(): DemoOrder[] {
   if (!isBrowser()) return [];
+  const userOrders = readDemoOrders().filter((o) => !o.is_sample);
   window.localStorage.removeItem(DEMO_ORDERS_KEY);
   window.localStorage.removeItem(DEMO_SEED_FLAG_KEY);
-  return ensureDemoOrders();
+  const merged = [...userOrders, ...buildDemoOrders()];
+  writeDemoOrders(merged);
+  window.localStorage.setItem(DEMO_SEED_FLAG_KEY, 'true');
+  return merged;
 }
 
 /** Ensures the demo table list exists. */

@@ -16,9 +16,6 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'Nidhivan Restaurant',
   },
-  icons: {
-    icon: '/icon.svg',
-  },
 };
 
 export const viewport: Viewport = {

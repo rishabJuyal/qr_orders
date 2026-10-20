@@ -34,7 +34,7 @@ function Stepper({
       <button
         onClick={() => onChange(id, 1)}
         aria-label={`Add ${name} to cart`}
-        className="group inline-flex h-10 items-center gap-1.5 rounded-xl bg-wine px-3.5 text-sm font-bold text-white shadow-lg shadow-wine/25 transition-all duration-200 hover:bg-[#5c1621] active:scale-95"
+        className="group inline-flex h-9 shrink-0 items-center gap-1 rounded-xl bg-wine px-3 text-[13px] font-bold text-white shadow-lg shadow-wine/25 transition-all duration-200 hover:bg-[#5c1621] active:scale-95 sm:h-10 sm:gap-1.5 sm:px-3.5 sm:text-sm"
       >
         <span className="text-base leading-none transition-transform duration-200 group-hover:rotate-90">
           +
@@ -44,7 +44,7 @@ function Stepper({
     );
   }
   return (
-    <div className="inline-flex items-center gap-1 rounded-xl border border-gold/60 bg-[#fdf6e7] p-1">
+    <div className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-gold/60 bg-[#fdf6e7] p-1">
       <button
         onClick={() => onChange(id, -1)}
         aria-label={`Remove one ${name}`}
@@ -77,11 +77,11 @@ export default function MenuItemCard({
 }) {
   return (
     <article
-      className="card card-hover animate-fade-up group relative flex gap-3.5 p-3.5 sm:gap-4 sm:p-4"
+      className="card card-hover animate-fade-up group relative flex w-full min-w-0 gap-3 overflow-hidden p-3 sm:gap-4 sm:p-4"
       style={{ animationDelay: `${Math.min(index, 11) * 35}ms` }}
     >
       <div
-        className={`relative flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-3xl shadow-lg shadow-black/10 sm:h-24 sm:w-24 sm:text-4xl`}
+        className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${item.gradient} text-2xl shadow-lg shadow-black/10 sm:h-24 sm:w-24 sm:text-4xl`}
       >
         <span className="drop-shadow-sm transition-transform duration-300 group-hover:scale-110">{item.emoji}</span>
         {item.popular && (
@@ -101,7 +101,7 @@ export default function MenuItemCard({
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
               </span>
-              <span className="truncate">{item.name}</span>
+              <span className="min-w-0 truncate">{item.name}</span>
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[#9b8175]">
               <span className="inline-flex items-center gap-1 font-semibold text-[#b8863f]">
@@ -121,7 +121,9 @@ export default function MenuItemCard({
           <p className="shrink-0 text-base font-bold text-wine sm:text-lg">{money(item.price)}</p>
         </div>
 
-        <p className="mt-1.5 line-clamp-2 text-[13px] leading-relaxed text-[#7d655b]">{item.description}</p>
+        <p className="mt-1.5 w-full min-w-0 line-clamp-2 break-words text-[13px] leading-relaxed text-[#7d655b]">
+          {item.description}
+        </p>
 
         {item.tags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1.5">
@@ -144,9 +146,11 @@ export default function MenuItemCard({
           </div>
         )}
 
-        <div className="mt-3 flex items-center justify-between gap-3">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
           <span className="text-[11px] uppercase tracking-wider text-[#b3a094]">{item.category}</span>
-          <Stepper qty={qty} onChange={onChange} id={item.id} name={item.name} />
+          <span className="ml-auto shrink-0">
+            <Stepper qty={qty} onChange={onChange} id={item.id} name={item.name} />
+          </span>
         </div>
       </div>
     </article>

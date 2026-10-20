@@ -95,7 +95,7 @@ export default function CartSheet({
                       {money(item.price)} · {money(item.price * qty)}
                     </p>
                   </div>
-                  <div className="inline-flex items-center gap-1 rounded-xl border border-gold/60 bg-[#fdf6e7] p-1">
+                  <div className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-gold/60 bg-[#fdf6e7] p-1">
                     <button
                       onClick={() => onChangeQty(item.id, -1)}
                       aria-label={`Remove one ${item.name}`}

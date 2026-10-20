@@ -247,9 +247,9 @@ export default function MenuClient({ tableId }: { tableId: string }) {
         <div className="pointer-events-none absolute inset-0 texture-dots opacity-40" />
 
         <div className="relative mx-auto max-w-5xl px-4 pb-6 pt-6 sm:px-6 sm:pt-8">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <Logo light />
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-200">
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-200">
               <span className="inline-flex h-3 w-3 items-center justify-center rounded-[3px] border border-emerald-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
               </span>
@@ -340,7 +340,7 @@ export default function MenuClient({ tableId }: { tableId: string }) {
                 <button
                   key={c}
                   onClick={() => setCategory(c)}
-                  className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
+                  className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
                     category === c
                       ? 'bg-wine text-white shadow-lg shadow-wine/25'
                       : 'border border-[#e7d8bf] bg-white text-[#7a6157] hover:border-gold hover:text-wine'
@@ -359,9 +359,9 @@ export default function MenuClient({ tableId }: { tableId: string }) {
         {tab === 'menu' ? (
           <>
             <div className="mb-4 flex items-end justify-between gap-3">
-              <div>
+              <div className="min-w-0">
                 <p className="eyebrow">Our menu</p>
-                <h2 className="text-2xl font-bold text-wine">
+                <h2 className="text-xl font-bold text-wine sm:text-2xl">
                   {activeCategory ?? 'Popular choices'}
                 </h2>
                 {activeCategory && (
@@ -370,7 +370,7 @@ export default function MenuClient({ tableId }: { tableId: string }) {
                   </p>
                 )}
               </div>
-              <span className="rounded-full bg-[#f4ecdd] px-3 py-1 text-xs font-semibold text-[#8a6b45]">
+              <span className="shrink-0 rounded-full bg-[#f4ecdd] px-3 py-1 text-xs font-semibold text-[#8a6b45]">
                 {items.length} items
               </span>
             </div>
@@ -391,7 +391,7 @@ export default function MenuClient({ tableId }: { tableId: string }) {
                 </button>
               </div>
             ) : (
-              <div className="grid gap-3.5 sm:grid-cols-2">
+              <div className="grid grid-cols-[minmax(0,1fr)] gap-3.5 sm:grid-cols-2">
                 {items.map((x, i) => (
                   <MenuItemCard key={x.id} item={x} qty={cart[x.id] || 0} onChange={change} index={i} />
                 ))}
@@ -415,19 +415,19 @@ export default function MenuClient({ tableId }: { tableId: string }) {
       {cartCount > 0 && !cartOpen && (
         <div className="fixed inset-x-0 bottom-0 z-40 px-3 pb-3 sm:px-6 sm:pb-5">
           <div className="mx-auto max-w-5xl">
-            <div className="animate-fade-up flex items-center justify-between gap-3 rounded-2xl border border-gold/50 bg-white/95 p-3 shadow-[0_18px_50px_-20px_rgba(74,16,25,0.6)] backdrop-blur-xl">
-              <div className="flex items-center gap-3 pl-1">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8c987] to-[#c9a253] text-lg shadow-md">
+            <div className="animate-fade-up flex items-center justify-between gap-2 rounded-2xl border border-gold/50 bg-white/95 p-2.5 shadow-[0_18px_50px_-20px_rgba(74,16,25,0.6)] backdrop-blur-xl sm:gap-3 sm:p-3">
+              <div className="flex min-w-0 items-center gap-2.5 pl-1 sm:gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8c987] to-[#c9a253] text-lg shadow-md sm:h-11 sm:w-11">
                   🧺
                 </span>
-                <div>
-                  <p className="text-xs text-[#8b7269]">
+                <div className="min-w-0">
+                  <p className="truncate text-xs text-[#8b7269]">
                     {cartCount} item{cartCount === 1 ? '' : 's'} · Table {tableId}
                   </p>
-                  <p className="text-lg font-bold leading-tight text-wine">{money(total)}</p>
+                  <p className="truncate text-lg font-bold leading-tight text-wine">{money(total)}</p>
                 </div>
               </div>
-              <button onClick={() => setCartOpen(true)} className="btn-primary px-5 py-3">
+              <button onClick={() => setCartOpen(true)} className="btn-primary shrink-0 px-4 py-2.5 text-sm sm:px-5 sm:py-3">
                 View order
               </button>
             </div>

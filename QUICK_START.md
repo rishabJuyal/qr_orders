@@ -9,7 +9,7 @@
    ```
 4. Open `http://localhost:3000/menu/table-01` and place a test order.
 5. Open `http://localhost:3000/admin/login`.
-   - Email: `admin@nidhivan.in`
+   - Email: `admin@nidhivan.demo`
    - Password: `nidhivan123`
 6. View the test order in the admin dashboard.
 
