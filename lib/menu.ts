@@ -308,7 +308,9 @@ export function enrichMenuItem(raw: any): MenuItem {
     name,
     price: Number(raw?.price ?? 0),
     available: raw?.available ?? raw?.is_available ?? true,
-    description: buildDescription(name, category),
+    description: raw?.description
+      ? String(raw.description).slice(0, 220)
+      : buildDescription(name, category),
     emoji: meta.emoji,
     gradient: meta.gradient,
     rating: Number((3.9 + (h % 11) / 10).toFixed(1)),

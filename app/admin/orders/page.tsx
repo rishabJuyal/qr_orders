@@ -9,45 +9,22 @@ import { ensureDemoOrders, readDemoOrders, resetDemoOrders, writeDemoOrders } fr
 import AdminShell from '../../../components/AdminShell';
 import OrderStatusBadge, { ORDER_FLOW } from '../../../components/OrderStatusBadge';
 
+/** Orders still open in the kitchen queue. */
+const PENDING_STATUSES = ['new', 'accepted', 'preparing', 'ready'];
+
 const FILTERS = [
-  { id: 'all', label: 'All' },
+  { id: 'pending', label: 'Pending' },
   { id: 'new', label: 'New' },
   { id: 'accepted', label: 'Accepted' },
   { id: 'preparing', label: 'Preparing' },
   { id: 'ready', label: 'Ready' },
-  { id: 'served', label: 'Served' },
   { id: 'cancelled', label: 'Cancelled' },
 ];
-
-function StatCard({
-  label,
-  value,
-  sub,
-  icon,
-  tone,
-}: {
-  label: string;
-  value: string | number;
-  sub?: string;
-  icon: string;
-  tone: string;
-}) {
-  return (
-    <div className="card animate-fade-up p-4">
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#a07d46]">{label}</p>
-        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone} text-sm`}>{icon}</span>
-      </div>
-      <p className="mt-2 text-2xl font-bold text-wine">{value}</p>
-      {sub && <p className="mt-0.5 text-[11px] text-[#9b8175]">{sub}</p>}
-    </div>
-  );
-}
 
 export default function Orders() {
   const [orders, setOrders] = useState<any[]>([]);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState('pending');
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [lastSync, setLastSync] = useState<Date | null>(null);
@@ -127,25 +104,11 @@ export default function Orders() {
     router.push('/admin/login');
   }
 
-  const stats = useMemo(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todays = orders.filter((o) => new Date(o.created_at).getTime() >= today.getTime());
-    return {
-      total: orders.length,
-      today: todays.length,
-      new: orders.filter((o) => o.status === 'new').length,
-      kitchen: orders.filter((o) => o.status === 'preparing' || o.status === 'accepted').length,
-      revenue: orders
-        .filter((o) => o.status !== 'cancelled')
-        .reduce((s, o) => s + Number(o.total_amount || 0), 0),
-    };
-  }, [orders]);
-
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     return orders.filter((o) => {
-      const statusOk = filter === 'all' || o.status === filter;
+      const statusOk =
+        filter === 'pending' ? PENDING_STATUSES.includes(o.status) : o.status === filter;
       const searchOk =
         !q ||
         String(o.order_number || '').toLowerCase().includes(q) ||
@@ -157,14 +120,16 @@ export default function Orders() {
   }, [orders, filter, search]);
 
   const counts = useMemo(() => {
-    const map: Record<string, number> = { all: orders.length };
+    const map: Record<string, number> = {
+      pending: orders.filter((o) => PENDING_STATUSES.includes(o.status)).length,
+    };
     for (const o of orders) map[o.status] = (map[o.status] || 0) + 1;
     return map;
   }, [orders]);
 
   return (
     <AdminShell
-      title="Orders dashboard"
+      title="Pending orders"
       subtitle={
         DEMO_MODE
           ? 'Demo mode · live sample orders stored in this browser'
@@ -193,14 +158,6 @@ export default function Orders() {
         </>
       }
     >
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatCard label="Total orders" value={stats.total} sub={`${stats.today} today`} icon="🧾" tone="bg-[#f7efe1]" />
-        <StatCard label="New" value={stats.new} sub="Waiting to be accepted" icon="🆕" tone="bg-sky-50" />
-        <StatCard label="In the kitchen" value={stats.kitchen} sub="Accepted + preparing" icon="👨‍🍳" tone="bg-amber-50" />
-        <StatCard label="Served" value={counts.served || 0} sub="Completed orders" icon="✅" tone="bg-emerald-50" />
-        <StatCard label="Revenue" value={money(stats.revenue)} sub="Excludes cancelled" icon="💰" tone="bg-rose-50" />
-      </div>
-
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
           {FILTERS.map((f) => (
@@ -233,10 +190,11 @@ export default function Orders() {
         <p className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</p>
       )}
 
-      <p className="mb-4 rounded-xl border border-[#f0e4d0] bg-[#fdf8ef] p-3 text-sm text-[#7a6157]">
-        Sample orders are pre-loaded so the dashboard looks alive. Place an order from the customer menu in
-        another tab — it appears here instantly.
-      </p>
+      {DEMO_MODE && (
+        <p className="mb-4 rounded-xl border border-[#f0e4d0] bg-[#fdf8ef] p-3 text-sm text-[#7a6157]">
+          Only pending orders are listed. Mark an order as served and it clears off this board.
+        </p>
+      )}
 
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2">
@@ -246,9 +204,15 @@ export default function Orders() {
         </div>
       ) : visible.length === 0 ? (
         <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <span className="text-4xl">🍽️</span>
-          <p className="mt-3 text-lg font-bold text-wine">No orders here</p>
-          <p className="mt-1 text-sm text-[#8b7269]">Try a different filter or search term.</p>
+          <span className="text-4xl">{filter === 'pending' ? '✅' : '🍽️'}</span>
+          <p className="mt-3 text-lg font-bold text-wine">
+            {filter === 'pending' ? 'No pending orders' : 'No orders here'}
+          </p>
+          <p className="mt-1 text-sm text-[#8b7269]">
+            {filter === 'pending'
+              ? 'Everything has been served. New orders will appear here instantly.'
+              : 'Try a different filter or search term.'}
+          </p>
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
